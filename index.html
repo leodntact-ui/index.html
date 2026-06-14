@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fear & Greed Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07070F;font-family:system-ui,sans-serif;color:#F9FAFB;min-height:100vh}
+.hdr{background:#0F0F1A;border-bottom:1px solid #1a1a2e;padding:14px 16px 10px;position:sticky;top:0;z-index:10}
+h1{font-size:20px;font-weight:900}.sp{color:#6366F1}
+.sub{font-size:10px;color:#4B5563;display:flex;align-items:center;gap:5px;margin-top:2px}
+.dot{width:7px;height:7px;background:#22C55E;border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.occ{margin-top:10px;background:#EF444410;border:1px solid #EF444428;border-radius:12px;padding:10px 12px}
+.occ h3{font-size:11px;font-weight:800;color:#EF4444;margin-bottom:7px}
+.otags{display:flex;gap:6px;flex-wrap:wrap}
+.otag{padding:4px 10px;border-radius:99px;background:#EF444420;border:1px solid #EF444440;color:#EF4444;font-weight:800;font-size:11px;cursor:pointer}
+.ctrl{background:#0F0F1A;border-bottom:1px solid #1a1a2e;padding:10px 16px}
+.srch{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #1F2937;background:#1A1A2E;color:#F9FAFB;font-size:13px;outline:none;margin-bottom:10px}
+.brow{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.b{padding:6px 14px;border-radius:99px;border:none;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap;background:#1A1A2E;color:#6B7280}
+.b.on{background:#6366F1;color:#fff}
+.crow{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}
+.cb{padding:4px 12px;border-radius:99px;border:1px solid #1F2937;background:transparent;color:#4B5563;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cb.on{border-color:#6366F1;background:#6366F122;color:#6366F1}
+.cnt{font-size:11px;color:#374151;padding:8px 16px 4px}
+.lst{padding:0 12px 40px}
+.card{background:#0F0F1A;border-radius:12px;padding:12px 14px;margin-bottom:6px;border:1px solid #1a1a2e;cursor:pointer}
+.ct{display:flex;align-items:center;gap:10px}
+.inf{flex:1;min-width:0}
+.nr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.sym{font-size:14px;font-weight:800}
+.nm{font-size:10px;color:#4B5563;margin-left:5px}
+.pb{text-align:right}
+.px{font-size:12px;font-weight:700}
+.vc{font-size:10px;font-weight:600}
+.br{display:flex;align-items:center;gap:6px}
+.bb{flex:1;background:#1a1a2e;border-radius:99px;height:5px}
+.bf{height:5px;border-radius:99px}
+.sv{font-size:11px;font-weight:800;min-width:22px;text-align:right}
+.bg{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;white-space:nowrap}
+.nt{font-size:9px;color:#6B7280;margin-top:4px}
+.dt{margin-top:12px;padding-top:12px;border-top:1px solid #1a1a2e;display:none}
+.dt.on{display:block}
+.cj{border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.6;margin-bottom:10px}
+.sts{display:flex;gap:6px;flex-wrap:wrap}
+.st{flex:1;min-width:60px;background:#1a1a2e;border-radius:8px;padding:8px 10px;text-align:center}
+.sl{font-size:10px;color:#4B5563}
+.sv2{font-size:13px;font-weight:800;margin-top:2px}
+.load{text-align:center;padding:60px 20px}
+.spin{font-size:32px;animation:spin 1s linear infinite;display:inline-block;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pgb{width:220px;background:#1a1a2e;border-radius:99px;height:4px;margin:12px auto 0;overflow:hidden}
+.pgf{height:4px;background:#6366F1;border-radius:99px;transition:width .5s ease}
+.pgtxt{font-size:11px;color:#4B5563;margin-top:8px}
+.errbx{background:#EF444415;border:1px solid #EF444430;border-radius:10px;padding:10px 14px;font-size:11px;color:#EF4444;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <div>
+      <h1>Fear & Greed <span class="sp">Pro</span></h1>
+      <p class="sub"><span class="dot"></span><span id="sub">Chargement...</span></p>
+    </div>
+    <button onclick="init()" style="padding:7px 14px;border-radius:10px;border:1px solid #1F2937;background:#1A1A2E;color:#6366F1;font-weight:700;font-size:12px;cursor:pointer">↻ Refresh</button>
+  </div>
+  <div class="occ"><h3>🔥 PEUR EXTRÊME — Occasions du jour</h3><div class="otags" id="occ"><span style="color:#6B7280;font-size:11px">Chargement...</span></div></div>
+</div>
+<div class="ctrl">
+  <input class="srch" id="srch" placeholder="🔍  BTC, TSLA, LVMH, NVO…" oninput="render()">
+  <div class="brow">
+    <button class="b on" id="f-occ" onclick="sf('occ')">🔥 Occasions</button>
+    <button class="b" id="f-all" onclick="sf('all')">📊 Tout</button>
+    <button class="b" id="f-risk" onclick="sf('risk')">🚨 Risqués</button>
+  </div>
+  <div class="crow">
+    <button class="cb on" id="c-All" onclick="sc('All')">🌍 Tout</button>
+    <button class="cb" id="c-Crypto" onclick="sc('Crypto')">₿ Crypto</button>
+    <button class="cb" id="c-Action" onclick="sc('Action')">📈 Actions</button>
+    <button class="cb" id="c-ETF" onclick="sc('ETF')">📊 ETF</button>
+  </div>
+</div>
+<div class="cnt" id="cnt"></div>
+<div class="lst" id="lst">
+  <div class="load">
+    <div class="spin">⟳</div>
+    <p style="font-size:13px;color:#6B7280;margin-bottom:8px">Scan mondial...</p>
+    <div class="pgb"><div class="pgf" id="pg" style="width:5%"></div></div>
+    <p class="pgtxt" id="pgtxt">Connexion...</p>
+  </div>
+</div>
+
+<script>
+const TD='9b20610eaecb469eb09b5201b697b86f';
+
+const ZONES=[
+  {max:20,l:"Peur Extrême",c:"#EF4444",s:"🔥 ACHETER"},
+  {max:40,l:"Peur",c:"#F97316",s:"👀 SURVEILLER"},
+  {max:60,l:"Neutre",c:"#EAB308",s:"⏳ ATTENDRE"},
+  {max:80,l:"Cupidité",c:"#84CC16",s:"⚠️ RÉDUIRE"},
+  {max:100,l:"Cupidité Extr.",c:"#22C55E",s:"🚨 VENDRE"}
+];
+const gz=s=>ZONES.find(z=>s<=z.max)||ZONES[4];
+
+function sc2(ch24,ch7,fromH){
+  const m24=ch24<=-10?5:ch24<=-5?12:ch24<=-3?22:ch24<=-1.5?32:ch24<=0?44:ch24<=1.5?55:ch24<=3?65:ch24<=5?75:ch24<=10?84:92;
+  const m7=ch7==null?50:ch7<=-25?5:ch7<=-15?14:ch7<=-8?24:ch7<=-3?36:ch7<=0?46:ch7<=3?55:ch7<=8?64:ch7<=15?74:ch7<=25?84:92;
+  const mH=fromH==null?50:fromH>=-3?88:fromH>=-10?72:fromH>=-25?52:fromH>=-45?32:fromH>=-65?16:6;
+  return Math.max(5,Math.min(95,Math.round(m24*.4+m7*.35+mH*.25)));
+}
+function fp(p,cur){
+  if(!p||isNaN(p))return'—';
+  p=Number(p);
+  const sym=cur&&cur!=='USD'?(cur+' '):' $';
+  if(p>=1000)return(cur&&cur!=='USD'?cur+' ':'')+p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(p>=1)return(cur&&cur!=='USD'?cur+' ':'$')+p.toFixed(2);
+  if(p>=0.01)return'$'+p.toFixed(4);
+  return'$'+p.toFixed(6);
+}
+const r2=n=>Math.round((n||0)*100)/100;
+function setPg(w,t){
+  const e=document.getElementById('pg'),tx=document.getElementById('pgtxt');
+  if(e)e.style.width=w+'%';if(tx&&t)tx.textContent=t;
+}
+
+// ══════════════════════
+// CRYPTO — CoinGecko
+// On charge page par page pour avoir les top 100
+// ══════════════════════
+const CRYPTO_META={
+  bitcoin:{n:"Bitcoin",note:"Store of value, ETF institutionnels"},
+  ethereum:{n:"Ethereum",note:"DeFi #1, staking, L2"},
+  binancecoin:{n:"BNB",note:"Utility Binance, burn"},
+  solana:{n:"Solana",note:"TPS élevé, DeFi/NFT"},
+  ripple:{n:"XRP",note:"Paiements cross-border"},
+  dogecoin:{n:"Dogecoin",note:"Memecoin, Elon Musk"},
+  cardano:{n:"Cardano",note:"PoS, développement actif"},
+  "avalanche-2":{n:"Avalanche",note:"Subnets institutionnels"},
+  "shiba-inu":{n:"Shiba Inu",note:"Memecoin, Shibarium L2"},
+  tron:{n:"TRON",note:"Stablecoins, volume"},
+  polkadot:{n:"Polkadot",note:"Interopérabilité, parachain"},
+  chainlink:{n:"Chainlink",note:"Oracle DeFi #1"},
+  "bitcoin-cash":{n:"Bitcoin Cash",note:"Fork BTC, paiements"},
+  near:{n:"NEAR",note:"UX simplifié, AI+blockchain"},
+  uniswap:{n:"Uniswap",note:"DEX #1 volume"},
+  litecoin:{n:"Litecoin",note:"Paiements, ETF"},
+  "internet-computer":{n:"Internet Computer",note:"Web décentralisé"},
+  "ethereum-classic":{n:"Ethereum Classic",note:"Fork original ETH"},
+  cosmos:{n:"Cosmos",note:"IBC interchain"},
+  stellar:{n:"Stellar",note:"Paiements institutions"},
+  monero:{n:"Monero",note:"Privacy coin"},
+  "hedera-hashgraph":{n:"Hedera",note:"Enterprise blockchain"},
+  filecoin:{n:"Filecoin",note:"Stockage décentralisé"},
+  arbitrum:{n:"Arbitrum",note:"L2 ETH #1 TVL"},
+  optimism:{n:"Optimism",note:"L2 ETH, Superchain"},
+  vechain:{n:"VeChain",note:"Supply chain, IoT"},
+  aptos:{n:"Aptos",note:"Move language, ex-Meta"},
+  sui:{n:"Sui",note:"Move, gaming/DeFi"},
+  aave:{n:"Aave",note:"Lending DeFi #1"},
+  maker:{n:"Maker",note:"DAI stablecoin"},
+  "injective-protocol":{n:"Injective",note:"Finance décentralisée"},
+  "lido-dao":{n:"Lido",note:"Liquid staking ETH #1"},
+  "the-graph":{n:"The Graph",note:"Indexeur blockchain"},
+  stacks:{n:"Stacks",note:"Bitcoin L2"},
+  thorchain:{n:"THORChain",note:"Cross-chain swaps"},
+  algorand:{n:"Algorand",note:"PoS, carbone neutre"},
+  "render-token":{n:"Render",note:"GPU décentralisé, IA"},
+  "the-sandbox":{n:"The Sandbox",note:"Metaverse gaming"},
+  decentraland:{n:"Decentraland",note:"Metaverse VR"},
+  "axie-infinity":{n:"Axie Infinity",note:"Play-to-earn gaming"},
+  gala:{n:"Gala",note:"Gaming blockchain"},
+  gmx:{n:"GMX",note:"Perps DEX, revenus réels"},
+  pendle:{n:"Pendle",note:"Yield trading DeFi"},
+  "jupiter-exchange-solana":{n:"Jupiter",note:"DEX aggregator Solana"},
+  "worldcoin-wld":{n:"Worldcoin",note:"ID biométrique"},
+  "sei-network":{n:"Sei",note:"Trading chain L1"},
+  celestia:{n:"Celestia",note:"Modular blockchain"},
+  eigenlayer:{n:"EigenLayer",note:"Restaking ETH"},
+  "ondo-finance":{n:"Ondo Finance",note:"RWA tokenisation"},
+  "pyth-network":{n:"Pyth",note:"Oracle données fin."},
+  kava:{n:"Kava",note:"DeFi cross-chain"},
+  "ocean-protocol":{n:"Ocean Protocol",note:"Data marketplace"},
+  "conflux-token":{n:"Conflux",note:"Blockchain Chine"},
+  "immutable-x":{n:"Immutable",note:"Gaming NFT L2"},
+  "1inch":{n:"1inch",note:"DEX aggregator"},
+  "curve-dao-token":{n:"Curve",note:"Stablecoin DEX"},
+  "compound-governance-token":{n:"Compound",note:"Lending DeFi"},
+  "synthetix-network-token":{n:"Synthetix",note:"Synth assets"},
+  zcash:{n:"Zcash",note:"Privacy, zk-SNARKs"},
+  "basic-attention-token":{n:"Basic Attention",note:"Browser pub"},
+  chiliz:{n:"Chiliz",note:"Fan tokens sport"},
+  "oasis-network":{n:"Oasis",note:"Privacy contracts"},
+  ankr:{n:"Ankr",note:"Infrastructure Web3"},
+  iota:{n:"IOTA",note:"IoT, DAG"},
+  celo:{n:"Celo",note:"Mobile-first DeFi"},
+  "multiversx-egld":{n:"MultiversX",note:"Sharding, Europe"},
+  kusama:{n:"Kusama",note:"Polkadot canary"},
+  eos:{n:"EOS",note:"dApps L1"},
+  pepe:{n:"Pepe",note:"Memecoin grenouille"},
+  floki:{n:"Floki",note:"Memecoin Valhalla"},
+  bonk:{n:"Bonk",note:"Memecoin Solana"},
+  dogwifcoin:{n:"dogwifhat",note:"Memecoin Solana"},
+};
+
+async function loadCrypto(){
+  // Charger top 100 par market cap directement — pas besoin de liste fixe
+  const url=`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d`;
+  const r=await fetch(url);
+  if(!r.ok)throw new Error('CoinGecko '+r.status);
+  const d=await r.json();
+  if(!Array.isArray(d)||d.length===0)throw new Error('CoinGecko vide');
+  return d.map(c=>{
+    const meta=CRYPTO_META[c.id]||{n:c.name,note:''};
+    const ch24=c.price_change_percentage_24h||0;
+    const ch7=c.price_change_percentage_7d_in_currency||0;
+    const fromH=c.ath?((c.current_price-c.ath)/c.ath*100):null;
+    return{s:c.symbol.toUpperCase(),n:meta.n||c.name,c:'Crypto',flag:'₿',
+      score:sc2(ch24,ch7,fromH),p:fp(c.current_price),v:r2(ch24),v7:r2(ch7),
+      note:meta.note||'Top 100 CoinGecko',src:'CoinGecko ✓'};
+  });
+}
+
+// ══════════════════════
+// ACTIONS — Twelvedata
+// Uniquement symboles NYSE/NASDAQ (pas de :EXCHANGE)
+// + ADR pour les étrangers cotés aux USA
+// ══════════════════════
+const STOCKS=[
+  // 🇺🇸 USA Tech
+  {s:"AAPL",n:"Apple",c:"Action",f:"🇺🇸",note:"iPhone, services"},
+  {s:"MSFT",n:"Microsoft",c:"Action",f:"🇺🇸",note:"Azure, Copilot, OpenAI"},
+  {s:"NVDA",n:"Nvidia",c:"Action",f:"🇺🇸",note:"GPU IA #1"},
+  {s:"AMZN",n:"Amazon",c:"Action",f:"🇺🇸",note:"AWS #1, e-commerce"},
+  {s:"GOOGL",n:"Alphabet",c:"Action",f:"🇺🇸",note:"Search, YouTube, Cloud"},
+  {s:"META",n:"Meta",c:"Action",f:"🇺🇸",note:"Réseaux sociaux, IA"},
+  {s:"TSLA",n:"Tesla",c:"Action",f:"🇺🇸",note:"EV, FSD, énergie"},
+  {s:"AVGO",n:"Broadcom",c:"Action",f:"🇺🇸",note:"Semi custom IA"},
+  {s:"AMD",n:"AMD",c:"Action",f:"🇺🇸",note:"CPU/GPU, MI300X"},
+  {s:"INTC",n:"Intel",c:"Action",f:"🇺🇸",note:"Semi, restructuration"},
+  {s:"QCOM",n:"Qualcomm",c:"Action",f:"🇺🇸",note:"Puces mobiles #1"},
+  {s:"AMAT",n:"Applied Materials",c:"Action",f:"🇺🇸",note:"Semi equipment"},
+  {s:"MU",n:"Micron",c:"Action",f:"🇺🇸",note:"DRAM/NAND, HBM IA"},
+  {s:"ORCL",n:"Oracle",c:"Action",f:"🇺🇸",note:"Cloud DB, OCI, IA"},
+  {s:"CRM",n:"Salesforce",c:"Action",f:"🇺🇸",note:"CRM #1, Agentforce"},
+  {s:"ADBE",n:"Adobe",c:"Action",f:"🇺🇸",note:"Creative suite, Firefly"},
+  {s:"NOW",n:"ServiceNow",c:"Action",f:"🇺🇸",note:"ITSM SaaS #1"},
+  {s:"PLTR",n:"Palantir",c:"Action",f:"🇺🇸",note:"IA défense/gov"},
+  {s:"COIN",n:"Coinbase",c:"Action",f:"🇺🇸",note:"Exchange crypto régulé"},
+  {s:"UBER",n:"Uber",c:"Action",f:"🇺🇸",note:"Rentable, marketplace"},
+  {s:"NET",n:"Cloudflare",c:"Action",f:"🇺🇸",note:"Cybersécurité edge"},
+  {s:"CRWD",n:"CrowdStrike",c:"Action",f:"🇺🇸",note:"Cybersécurité #1"},
+  {s:"SNOW",n:"Snowflake",c:"Action",f:"🇺🇸",note:"Data cloud"},
+  {s:"DDOG",n:"Datadog",c:"Action",f:"🇺🇸",note:"Monitoring cloud"},
+  {s:"SHOP",n:"Shopify",c:"Action",f:"🇨🇦",note:"E-commerce platform"},
+  // 🇺🇸 USA Finance
+  {s:"JPM",n:"JPMorgan",c:"Action",f:"🇺🇸",note:"Banque #1 USA"},
+  {s:"BAC",n:"Bank of America",c:"Action",f:"🇺🇸",note:"Banque retail #2"},
+  {s:"GS",n:"Goldman Sachs",c:"Action",f:"🇺🇸",note:"IB #1, trading"},
+  {s:"MS",n:"Morgan Stanley",c:"Action",f:"🇺🇸",note:"IB #2, wealth"},
+  {s:"V",n:"Visa",c:"Action",f:"🇺🇸",note:"Réseau paiement mondial"},
+  {s:"MA",n:"Mastercard",c:"Action",f:"🇺🇸",note:"Duopole paiement"},
+  {s:"BLK",n:"BlackRock",c:"Action",f:"🇺🇸",note:"Asset manager #1"},
+  {s:"SPGI",n:"S&P Global",c:"Action",f:"🇺🇸",note:"Notation crédit"},
+  {s:"AXP",n:"American Express",c:"Action",f:"🇺🇸",note:"Premium payments"},
+  {s:"BX",n:"Blackstone",c:"Action",f:"🇺🇸",note:"Private equity #1"},
+  // 🇺🇸 USA Santé
+  {s:"LLY",n:"Eli Lilly",c:"Action",f:"🇺🇸",note:"GLP-1 leader"},
+  {s:"UNH",n:"UnitedHealth",c:"Action",f:"🇺🇸",note:"Assurance santé #1"},
+  {s:"JNJ",n:"J&J",c:"Action",f:"🇺🇸",note:"Pharma/medtech"},
+  {s:"ABBV",n:"AbbVie",c:"Action",f:"🇺🇸",note:"Skyrizi/Rinvoq"},
+  {s:"MRK",n:"Merck",c:"Action",f:"🇺🇸",note:"Keytruda oncologie"},
+  {s:"PFE",n:"Pfizer",c:"Action",f:"🇺🇸",note:"Post-Covid restructuration"},
+  {s:"AMGN",n:"Amgen",c:"Action",f:"🇺🇸",note:"Biotech, obesity"},
+  {s:"ISRG",n:"Intuitive Surgical",c:"Action",f:"🇺🇸",note:"Chirurgie robotique #1"},
+  {s:"VRTX",n:"Vertex Pharma",c:"Action",f:"🇺🇸",note:"Fibrose kystique #1"},
+  {s:"MRNA",n:"Moderna",c:"Action",f:"🇺🇸",note:"ARNm, vaccins"},
+  // 🇺🇸 USA Conso/Retail
+  {s:"WMT",n:"Walmart",c:"Action",f:"🇺🇸",note:"Retail #1 USA"},
+  {s:"COST",n:"Costco",c:"Action",f:"🇺🇸",note:"Membership model"},
+  {s:"NKE",n:"Nike",c:"Action",f:"🇺🇸",note:"Brand sport #1 monde"},
+  {s:"SBUX",n:"Starbucks",c:"Action",f:"🇺🇸",note:"Turnaround CEO Niccol"},
+  {s:"MCD",n:"McDonald's",c:"Action",f:"🇺🇸",note:"Franchise 40k+ lieux"},
+  {s:"KO",n:"Coca-Cola",c:"Action",f:"🇺🇸",note:"Dividende 60 ans"},
+  {s:"PEP",n:"PepsiCo",c:"Action",f:"🇺🇸",note:"Boissons + snacks"},
+  {s:"PG",n:"P&G",c:"Action",f:"🇺🇸",note:"Consumer staples"},
+  {s:"DIS",n:"Disney",c:"Action",f:"🇺🇸",note:"Streaming, parcs, IP"},
+  {s:"NFLX",n:"Netflix",c:"Action",f:"🇺🇸",note:"Streaming #1"},
+  // 🇺🇸 USA Défense/Industrie/Energie
+  {s:"RTX",n:"RTX",c:"Action",f:"🇺🇸",note:"Défense + aviation"},
+  {s:"LMT",n:"Lockheed Martin",c:"Action",f:"🇺🇸",note:"Défense #1 USA"},
+  {s:"NOC",n:"Northrop Grumman",c:"Action",f:"🇺🇸",note:"Défense aérospatiale"},
+  {s:"BA",n:"Boeing",c:"Action",f:"🇺🇸",note:"Aviation, backlog 500B$"},
+  {s:"GE",n:"GE Aerospace",c:"Action",f:"🇺🇸",note:"Moteurs aviation #1"},
+  {s:"CAT",n:"Caterpillar",c:"Action",f:"🇺🇸",note:"Engins chantier #1"},
+  {s:"DE",n:"Deere",c:"Action",f:"🇺🇸",note:"Machinerie agricole #1"},
+  {s:"XOM",n:"ExxonMobil",c:"Action",f:"🇺🇸",note:"Major pétrole #1 USA"},
+  {s:"CVX",n:"Chevron",c:"Action",f:"🇺🇸",note:"Major pétrole #2 USA"},
+  {s:"NEE",n:"NextEra Energy",c:"Action",f:"🇺🇸",note:"Renouvelables #1 USA"},
+  {s:"CEG",n:"Constellation Energy",c:"Action",f:"🇺🇸",note:"Nucléaire #1 USA"},
+  {s:"VST",n:"Vistra",c:"Action",f:"🇺🇸",note:"Énergie Texas"},
+  {s:"T",n:"AT&T",c:"Action",f:"🇺🇸",note:"Telecom #1 USA"},
+  {s:"VZ",n:"Verizon",c:"Action",f:"🇺🇸",note:"Telecom #2 USA"},
+  {s:"TMUS",n:"T-Mobile",c:"Action",f:"🇺🇸",note:"Telecom croissance"},
+  // ADR — Étrangers cotés USA (fonctionnent sur Twelvedata)
+  {s:"NVO",n:"Novo Nordisk",c:"Action",f:"🇩🇰",note:"Ozempic/Wegovy GLP-1 #1"},
+  {s:"TSM",n:"TSMC",c:"Action",f:"🇹🇼",note:"Fonderie semi #1 monde"},
+  {s:"ASML",n:"ASML",c:"Action",f:"🇳🇱",note:"EUV lithographie #1"},
+  {s:"TM",n:"Toyota",c:"Action",f:"🇯🇵",note:"Auto #1 monde"},
+  {s:"BABA",n:"Alibaba",c:"Action",f:"🇨🇳",note:"E-commerce Chine #1"},
+  {s:"TCEHY",n:"Tencent",c:"Action",f:"🇨🇳",note:"Gaming, WeChat, IA"},
+  {s:"SAP",n:"SAP",c:"Action",f:"🇩🇪",note:"ERP #1 monde, cloud"},
+  {s:"AZN",n:"AstraZeneca",c:"Action",f:"🇬🇧",note:"Pharma oncologie"},
+  {s:"HSBC",n:"HSBC",c:"Action",f:"🇬🇧",note:"Banque Asie/Europe #1"},
+  {s:"SHEL",n:"Shell",c:"Action",f:"🇬🇧",note:"Major pétrole + gaz"},
+  {s:"RIO",n:"Rio Tinto",c:"Action",f:"🇦🇺",note:"Mines #2 monde"},
+  {s:"BHP",n:"BHP",c:"Action",f:"🇦🇺",note:"Mines #1 monde"},
+  {s:"UL",n:"Unilever",c:"Action",f:"🇬🇧",note:"FMCG global"},
+  {s:"GSK",n:"GSK",c:"Action",f:"🇬🇧",note:"Pharma vaccins"},
+  {s:"LVMUY",n:"LVMH",c:"Action",f:"🇫🇷",note:"Luxe #1 monde"},
+  {s:"LRLCY",n:"L'Oréal",c:"Action",f:"🇫🇷",note:"Cosmétiques #1 monde"},
+  {s:"SNYNF",n:"Sanofi",c:"Action",f:"🇫🇷",note:"Pharma Europe #1"},
+  {s:"TTFNF",n:"TotalEnergies",c:"Action",f:"🇫🇷",note:"Major pétrole + renouvelables"},
+  {s:"AIBUY",n:"Airbus",c:"Action",f:"🇫🇷",note:"Avions commerciaux #2"},
+  {s:"HESAY",n:"Hermès",c:"Action",f:"🇫🇷",note:"Luxe ultra-premium"},
+  {s:"CCHGY",n:"Coca-Cola HBC",c:"Action",f:"🇨🇭",note:"Embouteilleur Coca Europe"},
+  {s:"NSRGY",n:"Nestlé",c:"Action",f:"🇨🇭",note:"Alimentaire #1 monde"},
+  {s:"NOVN",n:"Novartis",c:"Action",f:"🇨🇭",note:"Pharma Suisse #1"},
+  {s:"RHHBY",n:"Roche",c:"Action",f:"🇨🇭",note:"Diagnostics + oncologie"},
+  {s:"SMNEY",n:"Siemens",c:"Action",f:"🇩🇪",note:"Industrie, automation"},
+  {s:"ALIZY",n:"Allianz",c:"Action",f:"🇩🇪",note:"Assurance #1 Europe"},
+  {s:"BMWYY",n:"BMW",c:"Action",f:"🇩🇪",note:"Auto premium, EV"},
+  {s:"IDDZY",n:"Inditex/Zara",c:"Action",f:"🇪🇸",note:"Fast fashion #1 monde"},
+  {s:"SAN",n:"Banco Santander",c:"Action",f:"🇪🇸",note:"Banque Espagne/LatAm"},
+  {s:"RELIANCE",n:"Reliance Industries",c:"Action",f:"🇮🇳",note:"Pétrole + telecom Inde"},
+  {s:"INFY",n:"Infosys",c:"Action",f:"🇮🇳",note:"IT services Inde #2"},
+  {s:"WIT",n:"Wipro",c:"Action",f:"🇮🇳",note:"IT services Inde #3"},
+  {s:"HDB",n:"HDFC Bank",c:"Action",f:"🇮🇳",note:"Banque privée Inde #1"},
+  {s:"SONY",n:"Sony",c:"Action",f:"🇯🇵",note:"Gaming PS, musique, semi"},
+  {s:"SSNLF",n:"Samsung Electronics",c:"Action",f:"🇰🇷",note:"Semi, DRAM, smartphones"},
+  // ETF
+  {s:"SPY",n:"S&P 500 ETF",c:"ETF",f:"🇺🇸",note:"Top 500 USA"},
+  {s:"QQQ",n:"Nasdaq 100 ETF",c:"ETF",f:"🇺🇸",note:"Top 100 tech USA"},
+  {s:"IWM",n:"Russell 2000",c:"ETF",f:"🇺🇸",note:"Small caps USA"},
+  {s:"VTI",n:"Total Market ETF",c:"ETF",f:"🇺🇸",note:"Marché US total"},
+  {s:"GLD",n:"Or ETF",c:"ETF",f:"🌍",note:"Valeur refuge"},
+  {s:"SLV",n:"Argent ETF",c:"ETF",f:"🌍",note:"Industriel + refuge"},
+  {s:"TLT",n:"Obligations 20Y",c:"ETF",f:"🇺🇸",note:"Treasuries long terme"},
+  {s:"ARKK",n:"ARK Innovation",c:"ETF",f:"🇺🇸",note:"Tech disruptive"},
+  {s:"EEM",n:"Emerging Markets",c:"ETF",f:"🌍",note:"Marchés émergents"},
+  {s:"KWEB",n:"China Internet ETF",c:"ETF",f:"🇨🇳",note:"Tech Chine"},
+  {s:"EWJ",n:"Japan ETF",c:"ETF",f:"🇯🇵",note:"Actions Japon"},
+  {s:"EWG",n:"Germany ETF",c:"ETF",f:"🇩🇪",note:"Actions Allemagne"},
+  {s:"EWQ",n:"France ETF",c:"ETF",f:"🇫🇷",note:"Actions France"},
+  {s:"VNQ",n:"Immobilier ETF",c:"ETF",f:"🇺🇸",note:"REITs USA"},
+  {s:"XLE",n:"Energie ETF",c:"ETF",f:"🇺🇸",note:"Secteur énergie"},
+  {s:"XLF",n:"Finance ETF",c:"ETF",f:"🇺🇸",note:"Secteur finance"},
+  {s:"XLV",n:"Santé ETF",c:"ETF",f:"🇺🇸",note:"Secteur santé"},
+  {s:"USO",n:"Pétrole ETF",c:"ETF",f:"🌍",note:"WTI crude oil"},
+];
+
+let assets=[], filtre='occ', cat='All', expanded=null, errors=[];
+
+function setPg(w,t){
+  const e=document.getElementById('pg'),tx=document.getElementById('pgtxt');
+  if(e)e.style.width=w+'%';if(tx&&t)tx.textContent=t;
+}
+
+async function loadCrypto(){
+  const url=`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d`;
+  const r=await fetch(url,{signal:AbortSignal.timeout(15000)});
+  if(!r.ok)throw new Error('CoinGecko HTTP '+r.status);
+  const d=await r.json();
+  if(!Array.isArray(d)||!d.length)throw new Error('CoinGecko: réponse vide');
+  return d.map(c=>{
+    const meta=CRYPTO_META[c.id]||{n:c.name,note:'Top 100 crypto'};
+    const ch24=c.price_change_percentage_24h||0;
+    const ch7=c.price_change_percentage_7d_in_currency||0;
+    const fromH=c.ath?((c.current_price-c.ath)/c.ath*100):null;
+    return{s:c.symbol.toUpperCase(),n:meta.n,c:'Crypto',f:'₿',
+      score:sc2(ch24,ch7,fromH),p:fp(c.current_price),v:r2(ch24),v7:r2(ch7),
+      note:meta.note,src:'CoinGecko ✓'};
+  });
+}
+
+async function loadStocksBatch(batch){
+  const syms=batch.map(x=>x.s).join(',');
+  const url=`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(syms)}&apikey=${TD}&dp=2`;
+  const r=await fetch(url,{signal:AbortSignal.timeout(15000)});
+  if(!r.ok)throw new Error('TD HTTP '+r.status);
+  const d=await r.json();
+  const results=[];
+  batch.forEach(meta=>{
+    const q=batch.length>1?d[meta.s]:d;
+    if(!q||q.status==='error'||!q.close)return;
+    const price=parseFloat(q.close||0);
+    if(!price||price<=0)return;
+    const ch24=parseFloat(q.percent_change||0);
+    const high52=parseFloat(q['52_week_high']||0);
+    const fromH=high52&&price?((price-high52)/high52*100):null;
+    const cur=q.currency||'USD';
+    const priceStr=cur==='USD'?'$'+fp(price):(fp(price)+' '+cur);
+    results.push({s:meta.s,n:meta.n,c:meta.c,f:meta.f||'🌍',
+      score:sc2(ch24,null,fromH),p:priceStr,v:r2(ch24),v7:null,
+      note:meta.note,src:'Twelvedata ✓'});
+  });
+  return results;
+}
+
+async function loadStocks(){
+  const results=[];
+  const size=40; // batch de 40 symboles
+  const batches=[];
+  for(let i=0;i<STOCKS.length;i+=size)batches.push(STOCKS.slice(i,i+size));
+  for(let i=0;i<batches.length;i++){
+    try{
+      const r=await loadStocksBatch(batches[i]);
+      results.push(...r);
+    }catch(e){errors.push('Batch '+(i+1)+': '+e.message);}
+    setPg(40+Math.round((i+1)/batches.length*55),`Actions ${Math.min(STOCKS.length,(i+1)*size)}/${STOCKS.length}...`);
+    if(i<batches.length-1)await new Promise(r=>setTimeout(r,350));
+  }
+  return results;
+}
+
+async function init(){
+  assets=[];errors=[];
+  document.getElementById('lst').innerHTML=`<div class="load"><div class="spin">⟳</div><p style="font-size:13px;color:#6B7280;margin-bottom:8px">Scan mondial en cours...</p><div class="pgb"><div class="pgf" id="pg" style="width:5%"></div></div><p class="pgtxt" id="pgtxt">Connexion...</p></div>`;
+  document.getElementById('sub').textContent='Chargement...';
+  try{
+    setPg(5,'Top 100 crypto...');
+    const [cr,st]=await Promise.allSettled([loadCrypto(),loadStocks()]);
+    const cryptos=cr.status==='fulfilled'?cr.value:(errors.push('Crypto: '+cr.reason?.message),[]);
+    const stocks=st.status==='fulfilled'?st.value:(errors.push('Stocks: '+st.reason?.message),[]);
+    setPg(100,'Chargé !');
+    const seen=new Set();
+    assets=[...cryptos,...stocks].filter(a=>{
+      if(seen.has(a.s))return false;seen.add(a.s);return true;
+    }).sort((a,b)=>a.score-b.score);
+    const total=assets.length;
+    document.getElementById('sub').textContent=`${total} actifs · mondial · ${new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`;
+    const occ=assets.filter(d=>d.score<=20).slice(0,8);
+    document.getElementById('occ').innerHTML=occ.length
+      ?occ.map(d=>`<button class="otag" onclick="hl('${d.s}')">${d.f} ${d.s} ${d.score}</button>`).join('')
+      :'<span style="color:#6B7280;font-size:11px">Marché calme — aucune peur extrême</span>';
+    render();
+  }catch(e){
+    document.getElementById('lst').innerHTML=`<div class="load"><p style="color:#EF4444;font-size:13px;margin-bottom:12px">Erreur: ${e.message}</p><button onclick="init()" style="padding:8px 20px;border-radius:99px;border:none;background:#6366F1;color:#fff;font-weight:700;cursor:pointer">↻ Réessayer</button></div>`;
+  }
+}
+
+function hl(s){document.getElementById('srch').value=s;sf('all');}
+
+function gauge(sc){
+  const z=gz(sc),angle=(sc/100)*180-90,tr=d=>d*Math.PI/180,cx=40,cy=36,r=28;
+  const arc=(a1,a2,col,op=1)=>{
+    const x1=cx+r*Math.cos(tr(a1)),y1=cy+r*Math.sin(tr(a1)),x2=cx+r*Math.cos(tr(a2)),y2=cy+r*Math.sin(tr(a2));
+    return`<path d="M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" opacity="${op}"/>`;
+  };
+  const segs=[[-90,-54,'#EF4444'],[-54,-18,'#F97316'],[-18,18,'#EAB308'],[18,54,'#84CC16'],[54,90,'#22C55E']];
+  let p=segs.map(([a1,a2,c])=>arc(a1,a2,c,.2)).join('');
+  const sa=-90+(sc/100)*180;
+  segs.forEach(([a1,a2,c])=>{if(a1>=sa)return;p+=arc(a1,Math.min(a2,sa),c);});
+  const nx=cx+(r-7)*Math.cos(tr(angle)),ny=cy+(r-7)*Math.sin(tr(angle));
+  return`<svg viewBox="0 0 80 44" style="width:58px;height:32px;flex-shrink:0">${p}<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${z.c}" stroke-width="2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3" fill="${z.c}"/></svg>`;
+}
+
+function cj(sc){
+  if(sc<=20)return"🔥 Peur extrême — opportunité rare. Accumule en DCA 3 tranches.";
+  if(sc<=35)return"👀 Zone de peur — pression temporaire. Rentre en 2 tranches.";
+  if(sc<=50)return"⏳ Zone neutre — attends un signal plus clair avant d'agir.";
+  if(sc<=65)return"🟡 Légère cupidité — prends profits partiels sur tes PV.";
+  if(sc<=80)return"⚠️ Cupidité — réduis progressivement, les autres achètent.";
+  return"🚨 Cupidité extrême — pire moment pour entrer. Protège tes gains.";
+}
+
+function sf(f){filtre=f;document.querySelectorAll('.b').forEach(b=>b.classList.remove('on'));document.getElementById('f-'+f).classList.add('on');render();}
+function sc(c){cat=c;document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));document.getElementById('c-'+c).classList.add('on');render();}
+
+function render(){
+  if(!assets.length)return;
+  const q=document.getElementById('srch').value.toUpperCase();
+  let list=[...assets];
+  if(cat!=='All')list=list.filter(d=>d.c===cat);
+  if(q)list=list.filter(d=>d.s.includes(q)||d.n.toUpperCase().includes(q));
+  if(filtre==='occ')list=list.filter(d=>d.score<=35);
+  if(filtre==='risk')list=list.filter(d=>d.score>=65);
+  list.sort((a,b)=>a.score-b.score);
+  document.getElementById('cnt').textContent=list.length+' actif'+(list.length>1?'s':'')+' · temps réel';
+  document.getElementById('lst').innerHTML=(errors.length?`<div class="errbx">⚠️ ${errors.length} erreur(s): ${errors.slice(0,2).join(' | ')}</div>`:'')
+    +(list.length===0?'<div style="text-align:center;padding:40px;color:#374151;font-size:13px">Aucun résultat</div>'
+    :list.map(d=>{
+      const z=gz(d.score),vc=d.v>=0?'#22C55E':'#EF4444',vs=(d.v>=0?'+':'')+d.v+'%',isO=expanded===d.s;
+      return`<div class="card" style="border-color:${isO?z.c+'55':'#1a1a2e'}" onclick="tog('${d.s}')">
+        <div class="ct">${gauge(d.score)}
+          <div class="inf">
+            <div class="nr">
+              <div><span style="font-size:12px">${d.f||''}</span> <span class="sym">${d.s}</span><span class="nm">${d.n}</span></div>
+              <div class="pb"><div class="px">${d.p}</div><div class="vc" style="color:${vc}">${vs}</div></div>
+            </div>
+            <div class="br">
+              <div class="bb"><div class="bf" style="width:${d.score}%;background:${z.c}"></div></div>
+              <span class="sv" style="color:${z.c}">${d.score}</span>
+              <span class="bg" style="background:${z.c}18;color:${z.c}">${z.s}</span>
+            </div>
+            <div class="nt">${d.note} <span style="color:#22C55E;font-size:8px">· ${d.src}</span></div>
+          </div>
+        </div>
+        <div class="dt ${isO?'on':''}">
+          <div style="font-size:12px;font-weight:700;color:${z.c};margin-bottom:8px">${z.s} — ${z.l}</div>
+          <div class="cj" style="background:${z.c}15;color:${z.c}">${cj(d.score)}</div>
+          <div class="sts">
+            <div class="st"><div class="sl">Type</div><div class="sv2" style="color:#9CA3AF;font-size:10px">${d.f} ${d.c}</div></div>
+            <div class="st"><div class="sl">Score</div><div class="sv2" style="color:${z.c}">${d.score}/100</div></div>
+            <div class="st"><div class="sl">24h</div><div class="sv2" style="color:${vc};font-size:12px">${vs}</div></div>
+            ${d.v7!=null?`<div class="st"><div class="sl">7j</div><div class="sv2" style="color:${d.v7>=0?'#22C55E':'#EF4444'};font-size:12px">${d.v7>=0?'+':''}${d.v7}%</div></div>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join(''));
+}
+
+function tog(s){expanded=expanded===s?null:s;render();}
+init();
+setInterval(init,5*60*1000);
+</script>
+</body>
+</html>
