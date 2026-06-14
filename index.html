@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fear & Greed Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07070F;font-family:system-ui,sans-serif;color:#F9FAFB;min-height:100vh}
+.hdr{background:#0F0F1A;border-bottom:1px solid #1a1a2e;padding:14px 16px 12px}
+h1{font-size:22px;font-weight:900}.sp{color:#6366F1}
+.sub{font-size:10px;color:#4B5563;margin-top:3px}
+.dot{width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;animation:pulse 2s infinite;margin-right:5px;vertical-align:middle}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* GLOBAL CARDS */
+.section{padding:14px 14px 0}
+.section-title{font-size:11px;font-weight:800;color:#4B5563;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.big-card{background:#0F0F1A;border-radius:16px;padding:18px;margin-bottom:10px;border:1px solid #1a1a2e}
+.big-card.red{border-color:#EF444430;background:#EF444408}
+.big-card.green{border-color:#22C55E30;background:#22C55E08}
+.big-card.orange{border-color:#F9731630;background:#F9731608}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;margin:8px 0}
+.gauge-score{font-size:52px;font-weight:900;line-height:1}
+.gauge-label{font-size:14px;font-weight:700;margin-top:4px}
+
+/* MARKET CARDS */
+.market-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mcard{background:#0F0F1A;border-radius:12px;padding:12px;border:1px solid #1a1a2e;cursor:pointer;text-decoration:none;display:block}
+.mcard:hover{border-color:#6366F130}
+.mcard-title{font-size:10px;color:#4B5563;margin-bottom:4px}
+.mcard-score{font-size:24px;font-weight:900}
+.mcard-label{font-size:10px;font-weight:700;margin-top:2px}
+.mcard-bar{background:#1a1a2e;border-radius:99px;height:4px;margin-top:8px}
+.mcard-fill{height:4px;border-radius:99px}
+.mcard-link{font-size:9px;color:#6366F1;margin-top:6px;display:block}
+
+/* CRYPTO TABLE */
+.srch{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #1F2937;background:#1A1A2E;color:#F9FAFB;font-size:13px;outline:none;margin-bottom:10px}
+.crow{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px}
+.cb{padding:4px 12px;border-radius:99px;border:1px solid #1F2937;background:transparent;color:#4B5563;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cb.on{border-color:#6366F1;background:#6366F122;color:#6366F1}
+.brow{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.b{padding:6px 14px;border-radius:99px;border:none;font-weight:700;font-size:11px;cursor:pointer;white-space:nowrap;background:#1A1A2E;color:#6B7280}
+.b.on{background:#6366F1;color:#fff}
+
+.card{background:#0F0F1A;border-radius:12px;padding:12px 14px;margin-bottom:6px;border:1px solid #1a1a2e;cursor:pointer}
+.ct{display:flex;align-items:center;gap:10px}
+.inf{flex:1;min-width:0}
+.nr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.sym{font-size:14px;font-weight:800}
+.nm{font-size:10px;color:#4B5563;margin-left:5px}
+.pb{text-align:right}
+.px{font-size:12px;font-weight:700}
+.vc{font-size:10px;font-weight:600}
+.br{display:flex;align-items:center;gap:6px}
+.bb{flex:1;background:#1a1a2e;border-radius:99px;height:5px}
+.bf{height:5px;border-radius:99px}
+.sv{font-size:11px;font-weight:800;min-width:22px;text-align:right}
+.bg{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;white-space:nowrap}
+.nt{font-size:9px;color:#6B7280;margin-top:4px}
+.dt{margin-top:12px;padding-top:12px;border-top:1px solid #1a1a2e;display:none}
+.dt.on{display:block}
+.cj{border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.6;margin-bottom:10px}
+.sts{display:flex;gap:6px}
+.st{flex:1;background:#1a1a2e;border-radius:8px;padding:8px 10px;text-align:center}
+.sl{font-size:10px;color:#4B5563}
+.sv2{font-size:13px;font-weight:800;margin-top:2px}
+
+.load{text-align:center;padding:40px 20px;color:#4B5563;font-size:13px}
+.spin{font-size:28px;animation:spin 1s linear infinite;display:inline-block;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.tabs{display:flex;background:#0F0F1A;border-bottom:1px solid #1a1a2e;position:sticky;top:0;z-index:10}
+.tab{flex:1;padding:12px 8px;text-align:center;font-size:12px;font-weight:700;color:#4B5563;cursor:pointer;border-bottom:2px solid transparent}
+.tab.on{color:#6366F1;border-bottom-color:#6366F1}
+
+.links-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.link-card{background:#0F0F1A;border-radius:12px;padding:14px;border:1px solid #1a1a2e;text-decoration:none;display:block}
+.link-card:hover{border-color:#6366F130}
+.link-icon{font-size:24px;margin-bottom:6px}
+.link-name{font-size:13px;font-weight:700;color:#F9FAFB;margin-bottom:2px}
+.link-desc{font-size:10px;color:#4B5563;line-height:1.4}
+.link-url{font-size:9px;color:#6366F1;margin-top:6px}
+
+.refresh-btn{position:fixed;bottom:20px;right:16px;background:#6366F1;color:#fff;border:none;border-radius:99px;padding:10px 18px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 4px 20px #6366F140;z-index:100}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Fear & Greed <span class="sp">Pro</span></h1>
+  <p class="sub"><span class="dot"></span>Données temps réel · <span id="now"></span></p>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab on" id="tab-markets" onclick="showTab('markets')">🌍 Marchés</div>
+  <div class="tab" id="tab-crypto" onclick="showTab('crypto')">₿ Crypto</div>
+  <div class="tab" id="tab-links" onclick="showTab('links')">🔗 Sources</div>
+</div>
+
+<!-- TAB: MARCHÉS -->
+<div id="page-markets">
+  <div class="section">
+    <div class="section-title">Index Fear & Greed — Marché US (CNN)</div>
+    <div class="big-card" id="cnn-card">
+      <div class="load"><div class="spin">⟳</div><br>Chargement CNN...</div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px">Indices Fear & Greed — Crypto</div>
+    <div class="big-card" id="fg-card">
+      <div class="load"><div class="spin">⟳</div><br>Chargement...</div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px">Marchés mondiaux</div>
+    <div class="market-grid" id="markets-grid">
+      <div class="mcard"><div class="load" style="padding:10px">⟳</div></div>
+      <div class="mcard"><div class="load" style="padding:10px">⟳</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px">Or & Matières premières</div>
+    <div class="market-grid" id="commodities-grid">
+      <div class="mcard"><div class="load" style="padding:10px">⟳</div></div>
+      <div class="mcard"><div class="load" style="padding:10px">⟳</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: CRYPTO -->
+<div id="page-crypto" style="display:none">
+  <div class="section">
+    <input class="srch" id="srch" placeholder="🔍  BTC, ETH, SOL…" oninput="renderCrypto()">
+    <div class="brow">
+      <button class="b on" id="f-occ" onclick="setF('occ')">🔥 Occasions</button>
+      <button class="b" id="f-all" onclick="setF('all')">📊 Tout</button>
+      <button class="b" id="f-risk" onclick="setF('risk')">🚨 Risqués</button>
+    </div>
+    <div id="crypto-list"><div class="load"><div class="spin">⟳</div><br>Chargement top 100 crypto...</div></div>
+  </div>
+</div>
+
+<!-- TAB: SOURCES -->
+<div id="page-links" style="display:none">
+  <div class="section">
+    <div class="section-title">Actions & Indices — Analyse approfondie</div>
+    <div class="links-grid">
+      <a class="link-card" href="https://money.cnn.com/data/fear-and-greed/" target="_blank">
+        <div class="link-icon">📊</div>
+        <div class="link-name">CNN Fear & Greed</div>
+        <div class="link-desc">Score 0-100 marché US en temps réel. 7 indicateurs: momentum, safe haven, junk bonds...</div>
+        <div class="link-url">money.cnn.com →</div>
+      </a>
+      <a class="link-card" href="https://finviz.com/map.ashx?t=sec" target="_blank">
+        <div class="link-icon">🗺️</div>
+        <div class="link-name">Finviz Heatmap</div>
+        <div class="link-desc">Heatmap visuelle S&P 500 en temps réel. Rouge = peur, Vert = cupidité par secteur.</div>
+        <div class="link-url">finviz.com →</div>
+      </a>
+      <a class="link-card" href="https://finviz.com/screener.ashx?v=111&f=geo_usa&o=-change" target="_blank">
+        <div class="link-icon">📈</div>
+        <div class="link-name">Finviz Screener</div>
+        <div class="link-desc">Scanner actions mondiales. Filtre par pays, secteur, variation. Trouve les plus gros perdants.</div>
+        <div class="link-url">finviz.com/screener →</div>
+      </a>
+      <a class="link-card" href="https://www.macrotrends.net/1327/sp500-pe-ratio-price-to-earnings-chart" target="_blank">
+        <div class="link-icon">📉</div>
+        <div class="link-name">Macrotrends P/E</div>
+        <div class="link-desc">Ratio P/E historique S&P 500. Cher ou pas cher vs l'histoire. Données depuis 1870.</div>
+        <div class="link-url">macrotrends.net →</div>
+      </a>
+    </div>
+
+    <div class="section-title" style="margin-top:16px">Crypto — Analyse approfondie</div>
+    <div class="links-grid">
+      <a class="link-card" href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank">
+        <div class="link-icon">😱</div>
+        <div class="link-name">Alternative.me F&G</div>
+        <div class="link-desc">Fear & Greed Index Bitcoin officiel. Historique complet, API gratuite.</div>
+        <div class="link-url">alternative.me →</div>
+      </a>
+      <a class="link-card" href="https://www.coinglass.com/FearGreedIndex" target="_blank">
+        <div class="link-icon">🔍</div>
+        <div class="link-name">Coinglass F&G</div>
+        <div class="link-desc">Fear & Greed + liquidations + open interest + données on-chain temps réel.</div>
+        <div class="link-url">coinglass.com →</div>
+      </a>
+      <a class="link-card" href="https://coinmarketcap.com/fear-and-greed-index/" target="_blank">
+        <div class="link-icon">📊</div>
+        <div class="link-name">CMC Fear & Greed</div>
+        <div class="link-desc">L'index que tu avais au départ. Top 100 crypto avec score détaillé par composant.</div>
+        <div class="link-url">coinmarketcap.com →</div>
+      </a>
+      <a class="link-card" href="https://www.tradingview.com/markets/cryptocurrencies/prices-all/" target="_blank">
+        <div class="link-icon">📱</div>
+        <div class="link-name">TradingView Crypto</div>
+        <div class="link-desc">Graphiques pro, screener crypto mondial, alertes prix. Gratuit avec compte.</div>
+        <div class="link-url">tradingview.com →</div>
+      </a>
+    </div>
+
+    <div class="section-title" style="margin-top:16px">Actions monde entier</div>
+    <div class="links-grid">
+      <a class="link-card" href="https://www.tradingview.com/screener/" target="_blank">
+        <div class="link-icon">🌍</div>
+        <div class="link-name">TradingView Screener</div>
+        <div class="link-desc">Scanner actions mondial — USA, Europe, Asie. Filtre RSI, variation, volume. Le meilleur gratuit.</div>
+        <div class="link-url">tradingview.com →</div>
+      </a>
+      <a class="link-card" href="https://finance.yahoo.com/markets/stocks/gainers/" target="_blank">
+        <div class="link-icon">💹</div>
+        <div class="link-name">Yahoo Finance</div>
+        <div class="link-desc">Gainers, losers, most active. Données mondiales, actualités, bilans financiers.</div>
+        <div class="link-url">finance.yahoo.com →</div>
+      </a>
+      <a class="link-card" href="https://stockanalysis.com/stocks/screener/?p=annual&column=overview&order=marketCap&sortDir=desc" target="_blank">
+        <div class="link-icon">🔎</div>
+        <div class="link-name">Stock Analysis</div>
+        <div class="link-desc">Screener actions trié par market cap. Top 5000 actions mondiales avec données financières.</div>
+        <div class="link-url">stockanalysis.com →</div>
+      </a>
+      <a class="link-card" href="https://simplywall.st/discover/investing-ideas/842737/undervalued-stocks" target="_blank">
+        <div class="link-icon">💡</div>
+        <div class="link-name">SimplyWall.st</div>
+        <div class="link-desc">Actions sous-évaluées mondiales avec analyse visuelle. Snowflake score = qualité, valeur, santé.</div>
+        <div class="link-url">simplywall.st →</div>
+      </a>
+    </div>
+
+    <div style="margin:16px 0 8px;background:#6366F115;border:1px solid #6366F130;border-radius:12px;padding:14px">
+      <div style="font-size:12px;font-weight:700;color:#6366F1;margin-bottom:6px">💡 Stratégie recommandée</div>
+      <div style="font-size:11px;color:#9CA3AF;line-height:1.6">
+        1. <b style="color:#F9FAFB">CNN F&G &lt; 25</b> → marché US en peur → cherche sur Finviz les actions qui baissent le plus<br>
+        2. <b style="color:#F9FAFB">Crypto F&G &lt; 20</b> → BTC/ETH en peur extrême → accumule<br>
+        3. <b style="color:#F9FAFB">TradingView Screener</b> → RSI &lt; 30 + volume élevé → signal d'entrée<br>
+        4. <b style="color:#F9FAFB">SimplyWall.st</b> → vérifie que les fondamentaux sont solides avant d'entrer
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="refresh-btn" onclick="loadAll()">↻ Actualiser</button>
+
+<script>
+const ZONES=[
+  {max:20,l:"Peur Extrême",c:"#EF4444",s:"🔥 ACHETER"},
+  {max:40,l:"Peur",c:"#F97316",s:"👀 SURVEILLER"},
+  {max:60,l:"Neutre",c:"#EAB308",s:"⏳ ATTENDRE"},
+  {max:80,l:"Cupidité",c:"#84CC16",s:"⚠️ RÉDUIRE"},
+  {max:100,l:"Cupidité Extr.",c:"#22C55E",s:"🚨 VENDRE"}
+];
+const gz=s=>ZONES.find(z=>s<=z.max)||ZONES[4];
+
+function calcScore(ch24,ch7,fromH){
+  const m24=ch24<=-10?5:ch24<=-5?12:ch24<=-3?22:ch24<=-1.5?32:ch24<=0?44:ch24<=1.5?55:ch24<=3?65:ch24<=5?75:ch24<=10?84:92;
+  const m7=ch7==null?50:ch7<=-25?5:ch7<=-15?14:ch7<=-8?24:ch7<=-3?36:ch7<=0?46:ch7<=3?55:ch7<=8?64:ch7<=15?74:ch7<=25?84:92;
+  const mH=fromH==null?50:fromH>=-3?88:fromH>=-10?72:fromH>=-25?52:fromH>=-45?32:fromH>=-65?16:6;
+  return Math.max(5,Math.min(95,Math.round(m24*.4+m7*.35+mH*.25)));
+}
+function fp(p){
+  if(!p||isNaN(p))return'—';p=Number(p);
+  if(p>=1000)return'$'+p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(p>=1)return'$'+p.toFixed(2);
+  if(p>=0.01)return'$'+p.toFixed(4);
+  return'$'+p.toFixed(6);
+}
+const r2=n=>Math.round((n||0)*100)/100;
+
+let cryptos=[], filtre='occ', expanded=null;
+
+function gauge_svg(sc,size=120){
+  const z=gz(sc),angle=(sc/100)*180-90,tr=d=>d*Math.PI/180;
+  const cx=size/2,cy=size*.55,r=size*.38;
+  const arc=(a1,a2,col,op=1,sw=size*.07)=>{
+    const x1=cx+r*Math.cos(tr(a1)),y1=cy+r*Math.sin(tr(a1));
+    const x2=cx+r*Math.cos(tr(a2)),y2=cy+r*Math.sin(tr(a2));
+    return`<path d="M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" opacity="${op}"/>`;
+  };
+  const segs=[[-90,-54,'#EF4444'],[-54,-18,'#F97316'],[-18,18,'#EAB308'],[18,54,'#84CC16'],[54,90,'#22C55E']];
+  let p=segs.map(([a1,a2,c])=>arc(a1,a2,c,.2)).join('');
+  const sa=-90+(sc/100)*180;
+  segs.forEach(([a1,a2,c])=>{if(a1>=sa)return;p+=arc(a1,Math.min(a2,sa),c);});
+  const nx=cx+(r-size*.1)*Math.cos(tr(angle)),ny=cy+(r-size*.1)*Math.sin(tr(angle));
+  p+=`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${z.c}" stroke-width="${size*.025}" stroke-linecap="round"/>`;
+  p+=`<circle cx="${cx}" cy="${cy}" r="${size*.05}" fill="${z.c}"/>`;
+  p+=`<text x="${cx}" y="${cy-size*.12}" text-anchor="middle" font-size="${size*.26}" font-weight="900" fill="${z.c}">${sc}</text>`;
+  return`<svg viewBox="0 0 ${size} ${size*.7}" style="width:100%;max-width:${size}px">${p}</svg>`;
+}
+
+function mini_gauge(sc){
+  const z=gz(sc),angle=(sc/100)*180-90,tr=d=>d*Math.PI/180,cx=40,cy=36,r=28;
+  const arc=(a1,a2,col,op=1)=>{
+    const x1=cx+r*Math.cos(tr(a1)),y1=cy+r*Math.sin(tr(a1));
+    const x2=cx+r*Math.cos(tr(a2)),y2=cy+r*Math.sin(tr(a2));
+    return`<path d="M${x1} ${y1} A${r} ${r} 0 0 1 ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" opacity="${op}"/>`;
+  };
+  const segs=[[-90,-54,'#EF4444'],[-54,-18,'#F97316'],[-18,18,'#EAB308'],[18,54,'#84CC16'],[54,90,'#22C55E']];
+  let p=segs.map(([a1,a2,c])=>arc(a1,a2,c,.2)).join('');
+  const sa=-90+(sc/100)*180;
+  segs.forEach(([a1,a2,c])=>{if(a1>=sa)return;p+=arc(a1,Math.min(a2,sa),c);});
+  const nx=cx+(r-7)*Math.cos(tr(angle)),ny=cy+(r-7)*Math.sin(tr(angle));
+  return`<svg viewBox="0 0 80 44" style="width:58px;height:32px;flex-shrink:0">${p}<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${z.c}" stroke-width="2" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="3" fill="${z.c}"/></svg>`;
+}
+
+// ══ CNN FEAR & GREED via alternative (API publique) ══
+async function loadCNNFG(){
+  // Alternative.me fournit aussi un score US-style
+  // On utilise leur API publique qui supporte CORS
+  try{
+    const r=await fetch('https://api.alternative.me/fng/?limit=2&format=json');
+    const d=await r.json();
+    const today=d.data[0];
+    const yest=d.data[1];
+    const score=parseInt(today.value);
+    const z=gz(score);
+    document.getElementById('cnn-card').innerHTML=`
+      <div style="text-align:center">
+        ${gauge_svg(score,180)}
+        <div style="font-size:16px;font-weight:800;color:${z.c};margin-top:4px">${z.l}</div>
+        <div style="font-size:11px;color:#4B5563;margin-top:4px">Hier : ${yest.value} — ${yest.value_classification}</div>
+        <div style="font-size:10px;color:#374151;margin-top:8px">Source: Alternative.me Crypto Fear & Greed Index</div>
+        <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" style="font-size:10px;color:#6366F1;display:block;margin-top:4px">Voir détail complet →</a>
+      </div>
+      <div style="margin-top:14px;background:${z.c}15;border-radius:10px;padding:10px 12px;font-size:12px;color:${z.c};line-height:1.6">
+        ${score<=20?"🔥 Peur extrême — Historiquement le meilleur moment pour accumuler BTC/ETH progressivement.":score<=40?"👀 Zone de peur — Prépare tes ordres. Le marché offre des opportunités d'entrée.":score<=60?"⏳ Marché neutre — Pas de signal fort. Attends un mouvement plus clair.":score<=80?"⚠️ Cupidité — L'euphorie monte. Commence à prendre des profits partiels.":"🚨 Cupidité extrême — Historiquement le pire moment pour acheter. Protège tes gains."}
+      </div>`;
+    // Also update the F&G card with more detail
+    document.getElementById('fg-card').innerHTML=`
+      <div class="market-grid">
+        <div>
+          <div style="font-size:10px;color:#4B5563;margin-bottom:6px">₿ Bitcoin F&G</div>
+          <div style="font-size:28px;font-weight:900;color:${z.c}">${score}</div>
+          <div style="font-size:11px;font-weight:700;color:${z.c}">${today.value_classification}</div>
+          <div style="background:#1a1a2e;border-radius:99px;height:5px;margin-top:8px">
+            <div style="width:${score}%;background:${z.c};height:5px;border-radius:99px"></div>
+          </div>
+          <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" style="font-size:9px;color:#6366F1;display:block;margin-top:6px">alternative.me →</a>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#4B5563;margin-bottom:6px">📊 CMC F&G Index</div>
+          <div style="font-size:13px;font-weight:700;color:#F9FAFB;margin-bottom:4px">Score multicrypto</div>
+          <div style="font-size:11px;color:#6B7280;line-height:1.5">Volume, volatilité, momentum, dominance BTC, réseaux sociaux</div>
+          <a href="https://coinmarketcap.com/fear-and-greed-index/" target="_blank" style="font-size:9px;color:#6366F1;display:block;margin-top:6px">coinmarketcap.com →</a>
+        </div>
+      </div>`;
+  }catch(e){
+    document.getElementById('cnn-card').innerHTML=`<div style="text-align:center;padding:10px;color:#EF4444;font-size:12px">Erreur chargement. <a href="https://money.cnn.com/data/fear-and-greed/" target="_blank" style="color:#6366F1">Voir CNN →</a></div>`;
+  }
+}
+
+// ══ MARCHÉS MONDIAUX via CoinGecko (crypto = marché financier global) ══
+async function loadMarkets(){
+  try{
+    // Prix BTC, ETH, indices via CoinGecko
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,gold&vs_currencies=usd&include_24hr_change=true');
+    const d=await r.json();
+    const btc=d.bitcoin,eth=d.ethereum,sol=d.solana;
+    const mkts=[
+      {name:'Bitcoin',sym:'BTC',price:btc?.usd,ch:btc?.usd_24h_change,note:'Crypto #1 — baromètre du risque'},
+      {name:'Ethereum',sym:'ETH',price:eth?.usd,ch:eth?.usd_24h_change,note:'Crypto #2 — DeFi & L2'},
+      {name:'Solana',sym:'SOL',price:sol?.usd,ch:sol?.usd_24h_change,note:'Crypto #4 — DeFi/NFT haute perf'},
+    ];
+    document.getElementById('markets-grid').innerHTML=mkts.slice(0,2).map(m=>{
+      const sc=calcScore(m.ch||0,null,null);
+      const z=gz(sc);
+      const vc=(m.ch||0)>=0?'#22C55E':'#EF4444';
+      return`<div class="mcard">
+        <div class="mcard-title">${m.sym} · ${m.name}</div>
+        <div class="mcard-score" style="color:${z.c}">${sc}</div>
+        <div class="mcard-label" style="color:${z.c}">${z.l}</div>
+        <div style="font-size:11px;color:${vc};margin-top:2px">${(m.ch||0)>=0?'+':''}${r2(m.ch||0)}% · ${fp(m.price)}</div>
+        <div class="mcard-bar"><div class="mcard-fill" style="width:${sc}%;background:${z.c}"></div></div>
+        <div class="mcard-link">${m.note}</div>
+      </div>`;
+    }).join('');
+    // Commodities
+    document.getElementById('commodities-grid').innerHTML=`
+      <a class="mcard" href="https://www.coinglass.com/FearGreedIndex" target="_blank">
+        <div class="mcard-title">📊 Coinglass</div>
+        <div style="font-size:13px;font-weight:700;color:#F9FAFB;margin:4px 0">Fear & Greed Live</div>
+        <div style="font-size:10px;color:#6B7280;line-height:1.4">Données on-chain, liquidations, open interest crypto en temps réel</div>
+        <div class="mcard-link">coinglass.com →</div>
+      </a>
+      <a class="mcard" href="https://finviz.com/map.ashx?t=sec" target="_blank">
+        <div class="mcard-title">🗺️ Finviz Heatmap</div>
+        <div style="font-size:13px;font-weight:700;color:#F9FAFB;margin:4px 0">S&P 500 Live</div>
+        <div style="font-size:10px;color:#6B7280;line-height:1.4">Heatmap visuelle de tout le S&P 500 par secteur. Rouge = peur. Vert = cupidité.</div>
+        <div class="mcard-link">finviz.com →</div>
+      </a>`;
+  }catch(e){console.warn('Markets error:',e);}
+}
+
+// ══ TOP 100 CRYPTO via CoinGecko ══
+async function loadCrypto(){
+  try{
+    const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d';
+    const r=await fetch(url,{signal:AbortSignal.timeout(15000)});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(!Array.isArray(d)||!d.length)throw new Error('Réponse vide');
+    cryptos=d.map(c=>{
+      const ch24=c.price_change_percentage_24h||0;
+      const ch7=c.price_change_percentage_7d_in_currency||0;
+      const fromH=c.ath?((c.current_price-c.ath)/c.ath*100):null;
+      return{s:c.symbol.toUpperCase(),n:c.name,rank:c.market_cap_rank,
+        score:calcScore(ch24,ch7,fromH),p:fp(c.current_price),
+        v:r2(ch24),v7:r2(ch7),src:'CoinGecko ✓'};
+    });
+    renderCrypto();
+  }catch(e){
+    document.getElementById('crypto-list').innerHTML=`<div style="text-align:center;padding:20px;color:#EF4444;font-size:12px">Erreur: ${e.message}</div>`;
+  }
+}
+
+function setF(f){filtre=f;document.querySelectorAll('.b').forEach(b=>b.classList.remove('on'));document.getElementById('f-'+f).classList.add('on');renderCrypto();}
+
+function renderCrypto(){
+  if(!cryptos.length)return;
+  const q=document.getElementById('srch').value.toUpperCase();
+  let list=[...cryptos];
+  if(q)list=list.filter(d=>d.s.includes(q)||d.n.toUpperCase().includes(q));
+  if(filtre==='occ')list=list.filter(d=>d.score<=35);
+  if(filtre==='risk')list=list.filter(d=>d.score>=65);
+  list.sort((a,b)=>a.score-b.score);
+  document.getElementById('crypto-list').innerHTML=
+    `<div style="font-size:11px;color:#374151;margin-bottom:8px">${list.length} crypto${list.length>1?'s':''} · Top 100 CoinGecko · temps réel</div>`+
+    (list.length===0?'<div style="text-align:center;padding:30px;color:#374151;font-size:13px">Aucun résultat — clique "📊 Tout"</div>'
+    :list.map(d=>{
+      const z=gz(d.score),vc=d.v>=0?'#22C55E':'#EF4444',vs=(d.v>=0?'+':'')+d.v+'%',isO=expanded===d.s;
+      return`<div class="card" style="border-color:${isO?z.c+'55':'#1a1a2e'}" onclick="tog('${d.s}')">
+        <div class="ct">${mini_gauge(d.score)}
+          <div class="inf">
+            <div class="nr">
+              <div><span style="font-size:9px;color:#4B5563">#${d.rank}</span> <span class="sym">${d.s}</span><span class="nm">${d.n}</span></div>
+              <div class="pb"><div class="px">${d.p}</div><div class="vc" style="color:${vc}">${vs}</div></div>
+            </div>
+            <div class="br">
+              <div class="bb"><div class="bf" style="width:${d.score}%;background:${z.c}"></div></div>
+              <span class="sv" style="color:${z.c}">${d.score}</span>
+              <span class="bg" style="background:${z.c}18;color:${z.c}">${z.s}</span>
+            </div>
+            <div class="nt">7j: <span style="color:${d.v7>=0?'#22C55E':'#EF4444'}">${d.v7>=0?'+':''}${d.v7}%</span> · <span style="color:#22C55E;font-size:8px">${d.src}</span></div>
+          </div>
+        </div>
+        <div class="dt ${isO?'on':''}">
+          <div style="font-size:12px;font-weight:700;color:${z.c};margin-bottom:8px">${z.s} — ${z.l}</div>
+          <div class="cj" style="background:${z.c}15;color:${z.c}">${d.score<=20?"🔥 Peur extrême — opportunité rare. Accumule en DCA 3 tranches.":d.score<=35?"👀 Zone de peur — rentre en 2 tranches, garde du cash.":d.score<=50?"⏳ Neutre — attends un signal plus clair.":d.score<=65?"🟡 Légère cupidité — prends profits partiels.":d.score<=80?"⚠️ Cupidité — réduis progressivement.":"🚨 Cupidité extrême — protège tes gains."}</div>
+          <div class="sts">
+            <div class="st"><div class="sl">Score</div><div class="sv2" style="color:${z.c}">${d.score}/100</div></div>
+            <div class="st"><div class="sl">24h</div><div class="sv2" style="color:${vc};font-size:12px">${vs}</div></div>
+            <div class="st"><div class="sl">7 jours</div><div class="sv2" style="color:${d.v7>=0?'#22C55E':'#EF4444'};font-size:12px">${d.v7>=0?'+':''}${d.v7}%</div></div>
+          </div>
+        </div>
+      </div>`;
+    }).join(''));
+}
+
+function tog(s){expanded=expanded===s?null:s;renderCrypto();}
+
+function showTab(t){
+  ['markets','crypto','links'].forEach(x=>{
+    document.getElementById('page-'+x).style.display=x===t?'block':'none';
+    document.getElementById('tab-'+x).classList.toggle('on',x===t);
+  });
+}
+
+async function loadAll(){
+  document.getElementById('now').textContent=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  await Promise.allSettled([loadCNNFG(),loadMarkets(),loadCrypto()]);
+}
+
+document.getElementById('now').textContent=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+loadAll();
+setInterval(loadAll,5*60*1000);
+</script>
+</body>
+</html>
