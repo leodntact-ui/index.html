@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyse Buffett</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #07070F;
+  font-family: system-ui, sans-serif;
+  color: #F9FAFB;
+  min-height: 100vh;
+  padding: 20px 16px 40px;
+}
+
+.header { text-align:center; margin-bottom: 28px; }
+.header h1 { font-size: 24px; font-weight: 900; }
+.header h1 span { color: #6366F1; }
+.header p { font-size: 12px; color: #4B5563; margin-top: 4px; }
+
+.search-box {
+  max-width: 500px;
+  margin: 0 auto 24px;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #1F2937;
+  background: #1A1A2E;
+  color: #F9FAFB;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+}
+
+input:focus { border-color: #6366F1; }
+
+button#analyze-btn {
+  padding: 13px 22px;
+  border-radius: 12px;
+  border: none;
+  background: #6366F1;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button#analyze-btn:disabled {
+  background: #374151;
+  cursor: not-allowed;
+}
+
+.examples {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.ex-btn {
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid #1F2937;
+  background: #1A1A2E;
+  color: #6B7280;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.result { max-width: 500px; margin: 0 auto; }
+
+/* VERDICT CARD */
+.verdict-card {
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  border: 1.5px solid transparent;
+}
+
+.verdict-card.buy { background: #22C55E10; border-color: #22C55E40; }
+.verdict-card.watch { background: #F9731610; border-color: #F9731640; }
+.verdict-card.avoid { background: #EF444410; border-color: #EF444440; }
+
+.verdict-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.company-name { font-size: 20px; font-weight: 900; }
+.verdict-badge {
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.verdict-badge.buy { background: #22C55E22; color: #22C55E; }
+.verdict-badge.watch { background: #F9731622; color: #F97316; }
+.verdict-badge.avoid { background: #EF444422; color: #EF4444; }
+
+.verdict-score {
+  font-size: 40px;
+  font-weight: 900;
+  margin: 8px 0;
+}
+
+.verdict-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+/* CRITERES */
+.criteria-card {
+  background: #0F0F1A;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid #1a1a2e;
+}
+
+.criteria-title {
+  font-size: 11px;
+  color: #4B5563;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.criterion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #1a1a2e;
+}
+
+.criterion:last-child { border-bottom: none; }
+
+.criterion-left { flex: 1; }
+.criterion-name { font-size: 13px; font-weight: 600; }
+.criterion-desc { font-size: 11px; color: #6B7280; margin-top: 2px; }
+
+.criterion-right { text-align: right; }
+.criterion-value { font-size: 14px; font-weight: 800; }
+.criterion-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+.ok { color: #22C55E; background: #22C55E15; }
+.warn { color: #F97316; background: #F9731615; }
+.bad { color: #EF4444; background: #EF444415; }
+
+/* RECOMMANDATION */
+.reco-card {
+  background: #0F0F1A;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid #1a1a2e;
+}
+
+.reco-title {
+  font-size: 11px;
+  color: #4B5563;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.reco-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #D1D5DB;
+}
+
+.buffett-quote {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #6366F115;
+  border-left: 3px solid #6366F1;
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  color: #9CA3AF;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.spinner {
+  font-size: 32px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-steps {
+  margin-top: 12px;
+}
+
+.loading-step {
+  font-size: 12px;
+  color: #4B5563;
+  padding: 3px 0;
+  transition: color 0.3s;
+}
+
+.loading-step.active { color: #6366F1; font-weight: 600; }
+.loading-step.done { color: #22C55E; }
+
+.disclaimer {
+  font-size: 10px;
+  color: #374151;
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Analyse <span>Buffett</span></h1>
+  <p>ROE · Marge nette · Dette · Croissance · Verdict instantané</p>
+</div>
+
+<div class="search-box">
+  <div class="input-row">
+    <input type="text" id="company-input" placeholder="Apple, LVMH, Tesla, Nestlé…" />
+    <button id="analyze-btn" onclick="analyze()">Analyser</button>
+  </div>
+  <div class="examples">
+    <button class="ex-btn" onclick="quickAnalyze('Apple')">Apple</button>
+    <button class="ex-btn" onclick="quickAnalyze('LVMH')">LVMH</button>
+    <button class="ex-btn" onclick="quickAnalyze('Tesla')">Tesla</button>
+    <button class="ex-btn" onclick="quickAnalyze('Novo Nordisk')">Novo Nordisk</button>
+    <button class="ex-btn" onclick="quickAnalyze('Nike')">Nike</button>
+    <button class="ex-btn" onclick="quickAnalyze('Pernod Ricard')">Pernod Ricard</button>
+    <button class="ex-btn" onclick="quickAnalyze('Boeing')">Boeing</button>
+    <button class="ex-btn" onclick="quickAnalyze('Coca-Cola')">Coca-Cola</button>
+  </div>
+</div>
+
+<div class="result" id="result"></div>
+
+<script>
+async function quickAnalyze(name) {
+  document.getElementById('company-input').value = name;
+  await analyze();
+}
+
+async function analyze() {
+  const company = document.getElementById('company-input').value.trim();
+  if (!company) return;
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const steps = [
+    'Recherche des données financières…',
+    'Calcul du ROE sur 5 ans…',
+    'Analyse de la marge nette…',
+    'Évaluation de la dette…',
+    'Application des critères Buffett…',
+    'Génération du verdict…'
+  ];
+
+  document.getElementById('result').innerHTML = `
+    <div class="loading">
+      <div class="spinner">⟳</div>
+      <p style="font-size:14px;color:#6B7280;margin-bottom:8px">Analyse en cours pour <strong style="color:#F9FAFB">${company}</strong></p>
+      <div class="loading-steps">
+        ${steps.map((s, i) => `<div class="loading-step" id="step-${i}">${s}</div>`).join('')}
+      </div>
+    </div>`;
+
+  // Animate loading steps
+  for (let i = 0; i < steps.length; i++) {
+    await new Promise(r => setTimeout(r, 400));
+    if (i > 0) document.getElementById(`step-${i-1}`)?.classList.replace('active', 'done');
+    document.getElementById(`step-${i}`)?.classList.add('active');
+  }
+
+  const prompt = `Tu es un analyste financier expert en analyse fondamentale style Warren Buffett.
+
+Analyse l'entreprise "${company}" avec les données financières les plus récentes disponibles (2024-2025).
+
+Évalue ces critères Buffett :
+1. ROE (Return on Equity) — seuil OK : > 15% sur 5 ans
+2. Marge nette — seuil OK : > 10%
+3. Dette/Equity — seuil OK : < 1 (ou dette/EBITDA < 3)
+4. Croissance revenus 5 ans — seuil OK : > 5%/an
+5. Moat (avantage concurrentiel) — évalue sur 10 : marque, brevet, réseau, coût de changement
+6. Prix actuel vs valeur intrinsèque — sous-évalué, juste prix, ou surévalué ?
+
+Pour chaque critère donne :
+- La valeur réelle actuelle (chiffre précis)
+- Un statut : OK / ATTENTION / MAUVAIS
+- Une courte explication
+
+Puis donne :
+- Un score global Buffett sur 100
+- Un verdict : ACHETER / SURVEILLER / ÉVITER
+- Une recommandation de 3-4 phrases style Buffett
+- Une citation de Buffett pertinente pour cette entreprise
+
+Réponds UNIQUEMENT en JSON valide, sans backticks :
+{
+  "company": "nom officiel",
+  "ticker": "ticker bourse",
+  "verdict": "ACHETER" | "SURVEILLER" | "ÉVITER",
+  "score": 0-100,
+  "score_label": "texte court",
+  "criteria": [
+    {"name": "ROE moyen 5 ans", "value": "23%", "threshold": "> 15%", "status": "OK" | "ATTENTION" | "MAUVAIS", "explanation": "..."},
+    {"name": "Marge nette", "value": "25%", "threshold": "> 10%", "status": "OK", "explanation": "..."},
+    {"name": "Dette/Equity", "value": "0.3", "threshold": "< 1", "status": "OK", "explanation": "..."},
+    {"name": "Croissance revenus 5 ans", "value": "+8%/an", "threshold": "> 5%/an", "status": "OK", "explanation": "..."},
+    {"name": "Moat (avantage)", "value": "8/10", "threshold": "> 6/10", "status": "OK", "explanation": "..."},
+    {"name": "Valorisation", "value": "Juste prix", "threshold": "Sous-évalué idéal", "status": "ATTENTION", "explanation": "..."}
+  ],
+  "recommendation": "3-4 phrases style Buffett sur cette entreprise",
+  "buffett_quote": "citation Buffett pertinente pour cette situation",
+  "prix_entree_ideal": "prix ou fourchette idéale d'entrée selon l'analyse"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Réponse invalide');
+    const r = JSON.parse(jsonMatch[0]);
+    renderResult(r);
+  } catch(e) {
+    document.getElementById('result').innerHTML = `
+      <div style="text-align:center;padding:20px;color:#EF4444;font-size:13px">
+        Erreur lors de l'analyse. Réessaie.
+      </div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Analyser';
+}
+
+function renderResult(r) {
+  const verdictClass = r.verdict === 'ACHETER' ? 'buy' : r.verdict === 'SURVEILLER' ? 'watch' : 'avoid';
+  const verdictEmoji = r.verdict === 'ACHETER' ? '🟢' : r.verdict === 'SURVEILLER' ? '🟡' : '🔴';
+  const scoreColor = r.score >= 70 ? '#22C55E' : r.score >= 50 ? '#F97316' : '#EF4444';
+
+  const criteriaHTML = r.criteria.map(c => {
+    const statusClass = c.status === 'OK' ? 'ok' : c.status === 'ATTENTION' ? 'warn' : 'bad';
+    const statusLabel = c.status === 'OK' ? '✅ OK' : c.status === 'ATTENTION' ? '⚠️ ATTENTION' : '❌ MAUVAIS';
+    return `
+      <div class="criterion">
+        <div class="criterion-left">
+          <div class="criterion-name">${c.name}</div>
+          <div class="criterion-desc">Seuil : ${c.threshold}</div>
+          <div class="criterion-desc" style="margin-top:2px;font-style:italic">${c.explanation}</div>
+        </div>
+        <div class="criterion-right">
+          <div class="criterion-value" style="color:${c.status==='OK'?'#22C55E':c.status==='ATTENTION'?'#F97316':'#EF4444'}">${c.value}</div>
+          <span class="criterion-status ${statusClass}">${statusLabel}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="verdict-card ${verdictClass}">
+      <div class="verdict-header">
+        <div>
+          <div class="company-name">${r.company}</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px">${r.ticker || ''}</div>
+        </div>
+        <span class="verdict-badge ${verdictClass}">${verdictEmoji} ${r.verdict}</span>
+      </div>
+      <div class="verdict-score" style="color:${scoreColor}">${r.score}<span style="font-size:18px;color:#4B5563">/100</span></div>
+      <div style="font-size:12px;color:${scoreColor};font-weight:700">${r.score_label || ''}</div>
+      ${r.prix_entree_ideal ? `<div style="margin-top:8px;font-size:12px;color:#9CA3AF">💰 Prix d'entrée idéal : <strong style="color:#F9FAFB">${r.prix_entree_ideal}</strong></div>` : ''}
+    </div>
+
+    <div class="criteria-card">
+      <div class="criteria-title">Critères Buffett</div>
+      ${criteriaHTML}
+    </div>
+
+    <div class="reco-card">
+      <div class="reco-title">Recommandation</div>
+      <div class="reco-text">${r.recommendation}</div>
+      ${r.buffett_quote ? `<div class="buffett-quote">"${r.buffett_quote}"<br><span style="color:#6366F1;font-style:normal;font-size:11px">— Warren Buffett</span></div>` : ''}
+    </div>
+
+    <p class="disclaimer">Analyse IA basée sur données publiques · Pas un conseil financier · Vérifie toujours les sources</p>
+  `;
+}
+
+// Enter key
+document.getElementById('company-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyze();
+});
+</script>
+</body>
+</html>
